@@ -1,0 +1,15 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: biome-check
+        name: Biome Check
+        entry: npm run check
+        language: system
+        types: [file]
+        files: \.(js|ts|jsx|tsx)$
+    -   id: biome-lint
+        name: Biome lint
+        entry: npm run lint
+        language: system
+        types: [file]
+        files: \.(js|ts|jsx|tsx)$
