@@ -22,10 +22,11 @@ async function bootstrap() {
   const packageVersion = process.env.npm_package_version as string;
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('user management API')
+    .setTitle('User Management API')
+    .setDescription('사용자 관리 시스템 API 문서')
     .setVersion(packageVersion)
     .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', in: 'header' },
       'access-token'
     )
     .build();
