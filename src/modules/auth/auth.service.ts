@@ -9,7 +9,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private tokenRepository: TokenRepository,
+    private tokenRepository: TokenRepository
   ) {}
 
   async login(email: string, password: string) {
@@ -24,19 +24,19 @@ export class AuthService {
     // 새로운 토큰 발급
     const accessToken = this.jwtService.sign(
       { sub: user.id, email: user.email, role: user.role },
-      { expiresIn: '1h' },
+      { expiresIn: '1h' }
     );
 
     const refreshToken = this.jwtService.sign(
       { sub: user.id },
-      { expiresIn: '7d' },
+      { expiresIn: '7d' }
     );
 
     // 토큰 저장
     const token = this.tokenRepository.createToken(
       accessToken,
       refreshToken,
-      user.id,
+      user.id
     );
 
     await this.tokenRepository.save(token);
@@ -47,8 +47,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
-      },
+        role: user.role
+      }
     };
   }
 
@@ -64,7 +64,7 @@ export class AuthService {
       // DB에서 유효한 refresh token 확인
       const token = await this.tokenRepository.findTokenWithRefreshToken(
         refreshToken,
-        payload.sub,
+        payload.sub
       );
 
       if (!token) {
@@ -76,9 +76,9 @@ export class AuthService {
         {
           sub: payload.id,
           email: payload.email,
-          role: payload.role,
+          role: payload.role
         },
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }
       );
 
       // 토큰 정보 업데이트
@@ -87,7 +87,7 @@ export class AuthService {
       await this.tokenRepository.save(token);
 
       return {
-        accessToken: newAccessToken,
+        accessToken: newAccessToken
       };
     } catch {
       throw new UnauthorizedException('유효하지 않은 Refresh token입니다.');

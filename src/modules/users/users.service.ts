@@ -1,7 +1,7 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
+  NotFoundException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,12 +13,12 @@ import { UserRepository } from './repositories/user.repository';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private readonly usersRepository: UserRepository,
+    private readonly usersRepository: UserRepository
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.usersRepository.findUserWithEmail(
-      createUserDto.email,
+      createUserDto.email
     );
 
     if (existingUser) {

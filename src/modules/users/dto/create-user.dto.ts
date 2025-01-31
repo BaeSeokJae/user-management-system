@@ -10,13 +10,13 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'Test123!',
     description:
-      '최소 8자 이상, 특수문자 1개, 대문자 1개, 숫자 1개를 포함해야 합니다.',
+      '최소 8자 이상, 특수문자 1개, 대문자 1개, 숫자 1개를 포함해야 합니다.'
   })
   @IsString()
   @MinLength(8)
   @IsStrongPassword({
     message:
-      '비밀번호는 최소 8자 이상이며, 특수문자 1개, 대문자 1개, 숫자 1개를 포함해야 합니다.',
+      '비밀번호는 최소 8자 이상이며, 특수문자 1개, 대문자 1개, 숫자 1개를 포함해야 합니다.'
   })
   password: string;
 

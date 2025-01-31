@@ -6,12 +6,15 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentWidth": 2
+    "indentWidth": 2,
+    "lineWidth": 80,
+    "bracketSpacing": true
   },
   "javascript": {
     "formatter": {
       "semicolons": "always",
-      "quoteStyle": "single"
+      "quoteStyle": "single",
+      "trailingCommas": "none"
     },
     "parser": {
       "unsafeParameterDecoratorsEnabled": true

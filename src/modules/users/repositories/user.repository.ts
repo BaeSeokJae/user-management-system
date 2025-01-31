@@ -12,13 +12,13 @@ export class UserRepository extends Repository<User> {
 
   async findUserWithEmail(email: string) {
     return await this.findOne({
-      where: { email: email },
+      where: { email: email }
     });
   }
 
   async findUserWithId(id: string) {
     return await this.findOne({
-      where: { id: id },
+      where: { id: id }
     });
   }
 }

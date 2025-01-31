@@ -12,13 +12,13 @@ import { createDataSourceOptions } from './database.config';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const dataSource = new DataSource(
-          createDataSourceOptions(configService),
+          createDataSourceOptions(configService)
         );
         await dataSource.initialize();
         return dataSource;
-      },
-    },
+      }
+    }
   ],
-  exports: [DataSource],
+  exports: [DataSource]
 })
 export class DatabaseConfigModule {}

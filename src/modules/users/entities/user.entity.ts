@@ -7,12 +7,12 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from 'typeorm';
 
 export enum UserRole {
   USER = 'user',
-  ADMIN = 'admin',
+  ADMIN = 'admin'
 }
 
 @Entity('users')
@@ -22,12 +22,12 @@ export class User {
 
   @Column({
     unique: true,
-    length: 255, // 이메일 해시값 길이 고려
+    length: 255 // 이메일 해시값 길이 고려
   })
   email: string;
 
   @Column({
-    length: 60, // bcrypt 해시 길이는 60자
+    length: 60 // bcrypt 해시 길이는 60자
   })
   @Exclude()
   password: string;
@@ -38,13 +38,13 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.USER,
+    default: UserRole.USER
   })
   role: UserRole;
 
   // 이메일 검증을 위한 필드 추가
   @Column({
-    default: false,
+    default: false
   })
   isEmailVerified: boolean;
 

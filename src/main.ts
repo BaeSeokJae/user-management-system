@@ -13,9 +13,9 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       transformOptions: {
-        enableImplicitConversion: true,
-      },
-    }),
+        enableImplicitConversion: true
+      }
+    })
   );
   app.enableVersioning({ type: VersioningType.URI });
 
@@ -26,7 +26,7 @@ async function bootstrap() {
     .setVersion(packageVersion)
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'access-token',
+      'access-token'
     )
     .build();
 

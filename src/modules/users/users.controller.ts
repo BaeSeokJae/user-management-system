@@ -8,13 +8,13 @@ import {
   Post,
   Put,
   Request,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiTags,
+  ApiTags
 } from '@nestjs/swagger';
 import { RequestWithUser } from 'src/common/interfaces/request.interface';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -66,7 +66,7 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithUser
   ) {
     if (req.user.id !== id) {
       throw new ForbiddenException('본인의 정보만 수정할 수 있습니다.');

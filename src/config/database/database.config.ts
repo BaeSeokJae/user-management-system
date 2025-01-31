@@ -3,7 +3,7 @@ import { DataSourceOptions } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 export const createDataSourceOptions = (
-  configService: ConfigService,
+  configService: ConfigService
 ): DataSourceOptions => ({
   type: 'postgres',
   host: configService.get('DB_HOST'),
@@ -18,5 +18,5 @@ export const createDataSourceOptions = (
   synchronize: false,
   migrationsRun: configService.get('MIGRATE_RUN') === 'true',
   logging: false,
-  maxQueryExecutionTime: 1000,
+  maxQueryExecutionTime: 1000
 });

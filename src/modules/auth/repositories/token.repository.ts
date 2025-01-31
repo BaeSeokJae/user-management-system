@@ -14,14 +14,14 @@ export class TokenRepository extends Repository<Token> {
       refreshToken,
       userId,
       accessTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1시간
-      refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7일
+      refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7일
     });
   }
 
   async updateToken(userId: string) {
     return await this.update(
       { userId: userId, isRevoked: false },
-      { isRevoked: true },
+      { isRevoked: true }
     );
   }
 
@@ -31,8 +31,8 @@ export class TokenRepository extends Repository<Token> {
         refreshToken,
         isRevoked: false,
         userId: sub,
-        refreshTokenExpiresAt: MoreThan(new Date()),
-      },
+        refreshTokenExpiresAt: MoreThan(new Date())
+      }
     });
   }
 }
