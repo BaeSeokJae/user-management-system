@@ -1,5 +1,8 @@
+import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -50,4 +53,13 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    // 비밀번호가 변경되었을 때만 해시화
+    if (this.password && !this.password.match(/^\$2[ayb]\$.{56}$/)) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  }
 }

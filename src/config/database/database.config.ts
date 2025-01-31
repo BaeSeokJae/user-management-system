@@ -13,7 +13,7 @@ export const createDataSourceOptions = (
   database: configService.get('DB_DATABASE'),
   namingStrategy: new SnakeNamingStrategy(),
   entities: ['dist/**/entities/*.entity{.js,.ts}'],
-  migrations: ['dist/src/migrations/*{.js,.ts}'],
+  migrations: ['dist/migrations/*{.js,.ts}'],
   migrationsTableName: 'migrations',
   synchronize: false,
   migrationsRun: configService.get('MIGRATE_RUN') === 'true',
