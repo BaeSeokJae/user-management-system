@@ -36,6 +36,29 @@ DELETE /users/:id   # 사용자 삭제 (본인만 가능)
 - Docker로 애플리케이션 컨테이너화
 - Docker Compose로 PostgreSQL 관리
 
+## 시스템 아키텍쳐 다이어그램
+```mermaid
+graph TB
+    subgraph Client
+        A[Client] --> B[Cloudflare]
+    end
+
+    subgraph AWS Cloud
+        subgraph EC2
+            B -->|HTTPS| C[Docker Host]
+            subgraph Docker Containers
+                D[NestJS App] <--> E[PostgreSQL]
+            end
+            C --> D
+        end
+    end
+
+    subgraph Services
+        D -->|Auth| F[JWT Service]
+        D -->|DB Access| E
+    end
+```
+
 ## 설치 및 실행방법
 0. 사전 세팅
 ```
