@@ -27,7 +27,6 @@ import { UsersService } from './users.service';
 
 @ApiTags('users')
 @Controller({ path: 'users', version: '1' })
-@UseGuards(JwtAuthGuard) // 기본적으로 모든 엔드포인트에 인증 필요
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -40,6 +39,7 @@ export class UsersController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
@@ -50,6 +50,7 @@ export class UsersController {
 
   @Get(':id')
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '특정 사용자 조회' })
   @ApiResponse({ status: 404, description: '사용자를 찾을 수 없음' })
   async findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
@@ -61,6 +62,7 @@ export class UsersController {
 
   @Put(':id')
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '사용자 정보 수정' })
   @ApiResponse({ status: 403, description: '권한 없음' })
   async update(
@@ -75,6 +77,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '사용자 삭제' })
   @ApiResponse({ status: 403, description: '권한 없음' })
