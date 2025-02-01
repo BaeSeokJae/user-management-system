@@ -1,173 +1,132 @@
+import { randomUUID } from 'node:crypto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { CreateUserDto } from '../../src/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../src/modules/users/dto/update-user.dto';
 import { User, UserRole } from '../../src/modules/users/entities/user.entity';
 import { UserRepository } from '../../src/modules/users/repositories/user.repository';
 import { UsersService } from '../../src/modules/users/users.service';
+import {
+  cleanupTestConnection,
+  createTestDataSource
+} from '../test-database.module';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let repository: jest.Mocked<UserRepository>;
+  let repository: UserRepository;
+  let dataSource: DataSource;
 
-  const mockUserRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    find: jest.fn(),
-    findUserWithEmail: jest.fn(),
-    findUserWithId: jest.fn(),
-    delete: jest.fn()
-  };
-
-  const expectedUser: User = {
-    id: '1',
+  const createUserDto: CreateUserDto = {
     email: 'test@example.com',
-    name: '홍길동',
-    password: 'Password123!',
-    role: UserRole.USER,
-    isEmailVerified: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    hashPassword: jest.fn()
+    password: 'Test123!@',
+    name: '홍길동'
   };
-
-  const expectedUsers = [
-    {
-      id: '1',
-      email: 'test1@example.com',
-      name: '홍길동',
-      password: 'Password123!',
-      role: UserRole.USER,
-      isEmailVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      hashPassword: jest.fn()
-    },
-    {
-      id: '2',
-      email: 'test2@example.com',
-      name: '김철수',
-      password: 'Password123!',
-      role: UserRole.USER,
-      isEmailVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      hashPassword: jest.fn()
-    }
-  ];
 
   beforeEach(async () => {
+    dataSource = await createTestDataSource();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
-          provide: UserRepository,
-          useValue: mockUserRepository
-        },
-        {
           provide: getRepositoryToken(User),
-          useValue: mockUserRepository
+          useFactory: () => {
+            return new UserRepository(dataSource);
+          }
         }
       ]
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    repository = module.get(UserRepository);
+  });
+
+  afterEach(async () => {
+    await cleanupTestConnection(dataSource);
   });
 
   describe('create', () => {
-    const createUserDto: CreateUserDto = {
-      email: 'test@example.com',
-      password: 'Test123!@',
-      name: '홍길동'
-    };
-
     it('should create a new user if email does not exist', async () => {
-      repository.findUserWithEmail.mockResolvedValue(null);
-      repository.create.mockReturnValue(expectedUser);
-      repository.save.mockResolvedValue(expectedUser);
-
+      // When
       const result = await service.create(createUserDto);
 
-      expect(result).toEqual(expectedUser);
-      expect(repository.findUserWithEmail).toHaveBeenCalledWith(
-        createUserDto.email
-      );
-      expect(repository.create).toHaveBeenCalledWith(createUserDto);
-      expect(repository.save).toHaveBeenCalledWith(expectedUser);
+      // Then
+      expect(result.email).toBe(createUserDto.email);
+      expect(result.name).toBe(createUserDto.name);
+      expect(result.role).toBe(UserRole.USER);
     });
 
     it('should throw ConflictException if email exists', async () => {
-      repository.findUserWithEmail.mockResolvedValue({
-        id: '1',
-        ...createUserDto,
-        role: UserRole.USER,
-        isEmailVerified: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        hashPassword: jest.fn()
-      });
+      // Given
+      await service.create(createUserDto);
 
+      // When & Then
       await expect(service.create(createUserDto)).rejects.toThrow(
         ConflictException
-      );
-      expect(repository.findUserWithEmail).toHaveBeenCalledWith(
-        createUserDto.email
       );
     });
   });
 
   describe('findOne', () => {
     it('should return a user if exists', async () => {
-      repository.findUserWithId.mockResolvedValue(expectedUser);
+      // Given
+      const createdUser = await service.create(createUserDto);
 
-      const result = await service.findOne('1');
+      // When
+      const result = await service.findOne(createdUser.id);
 
-      expect(result).toEqual(expectedUser);
-      expect(repository.findUserWithId).toHaveBeenCalledWith('1');
+      // Then
+      expect(result.id).toBe(createdUser.id);
+      expect(result.email).toBe(createUserDto.email);
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
-      repository.findUserWithId.mockResolvedValue(null);
-
-      await expect(service.findOne('1')).rejects.toThrow(NotFoundException);
-      expect(repository.findUserWithId).toHaveBeenCalledWith('1');
+      await expect(service.findOne(randomUUID())).rejects.toThrow(
+        NotFoundException
+      );
     });
   });
 
   describe('findAll', () => {
     it('should return array of users', async () => {
-      repository.find.mockResolvedValue(expectedUsers);
+      // Given
+      await service.create(createUserDto);
+      await service.create({
+        email: 'test2@example.com',
+        password: 'Test123!@',
+        name: '김철수'
+      });
 
+      // When
       const result = await service.findAll();
 
-      expect(result).toEqual(expectedUsers);
-      expect(repository.find).toHaveBeenCalled();
+      // Then
+      expect(result).toHaveLength(2);
+      expect(result[0].email).toBe(createUserDto.email);
+      expect(result[1].email).toBe('test2@example.com');
     });
   });
 
   describe('findByEmail', () => {
     it('should return a user if email exists', async () => {
-      repository.findUserWithEmail.mockResolvedValue(expectedUser);
+      // Given
+      const createdUser = await service.create(createUserDto);
 
-      const result = await service.findByEmail('test@example.com');
+      // When
+      const result = await service.findByEmail(createUserDto.email);
 
-      expect(result).toEqual(expectedUser);
-      expect(repository.findUserWithEmail).toHaveBeenCalledWith(
-        'test@example.com'
-      );
+      // Then
+      expect(result.id).toBe(createdUser.id);
+      expect(result.email).toBe(createUserDto.email);
     });
 
     it('should return null if email does not exist', async () => {
-      repository.findUserWithEmail.mockResolvedValue(null);
+      // When
+      const result = await service.findByEmail('nonexistent@example.com');
 
-      const result = await service.findByEmail('test@example.com');
-
+      // Then
       expect(result).toBeNull();
-      expect(repository.findUserWithEmail).toHaveBeenCalledWith(
-        'test@example.com'
-      );
     });
   });
 
@@ -177,52 +136,42 @@ describe('UsersService', () => {
     };
 
     it('should update and return user if exists', async () => {
-      const existingUser = {
-        id: '1',
-        email: 'test@example.com',
-        name: '홍길동',
-        password: 'password',
-        role: UserRole.USER,
-        isEmailVerified: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        hashPassword: jest.fn()
-      };
-      const updatedUser = { ...existingUser, ...updateUserDto };
-      repository.findUserWithId.mockResolvedValue(existingUser);
-      repository.save.mockResolvedValue(updatedUser);
+      // Given
+      const createdUser = await service.create(createUserDto);
 
-      const result = await service.update('1', updateUserDto);
+      // When
+      const result = await service.update(createdUser.id, updateUserDto);
 
-      expect(result).toEqual(updatedUser);
-      expect(repository.findUserWithId).toHaveBeenCalledWith('1');
-      expect(repository.save).toHaveBeenCalledWith(updatedUser);
+      // Then
+      expect(result.id).toBe(createdUser.id);
+      expect(result.name).toBe(updateUserDto.name);
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
-      repository.findUserWithId.mockResolvedValue(null);
-
-      await expect(service.update('1', updateUserDto)).rejects.toThrow(
+      await expect(service.update(randomUUID(), updateUserDto)).rejects.toThrow(
         NotFoundException
       );
-      expect(repository.findUserWithId).toHaveBeenCalledWith('1');
     });
   });
 
   describe('remove', () => {
     it('should remove user if exists', async () => {
-      repository.delete.mockResolvedValue({ affected: 1, raw: {} });
+      // Given
+      const createdUser = await service.create(createUserDto);
 
-      await service.remove('1');
+      // When
+      await service.remove(createdUser.id);
 
-      expect(repository.delete).toHaveBeenCalledWith('1');
+      // Then
+      await expect(service.findOne(createdUser.id)).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it('should throw NotFoundException if user does not exist', async () => {
-      repository.delete.mockResolvedValue({ affected: 0, raw: {} });
-
-      await expect(service.remove('1')).rejects.toThrow(NotFoundException);
-      expect(repository.delete).toHaveBeenCalledWith('1');
+      await expect(service.remove(randomUUID())).rejects.toThrow(
+        NotFoundException
+      );
     });
   });
 });

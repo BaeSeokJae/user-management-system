@@ -27,6 +27,12 @@
       "style": {
         "useImportType": "off",
         "noUnusedTemplateLiteral": "error"
+      },
+      "complexity": {
+        "noForEach": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn"
       }
     }
   }

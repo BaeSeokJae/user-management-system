@@ -14,7 +14,7 @@
     "format:check": "npx @biomejs/biome check .",
     "lint": "npx @biomejs/biome lint .",
     "format:check:apply": "npx @biomejs/biome check . --write",
-    "lint:apply": "npx @biomejs/biome lint .",
+    "lint:apply": "npx @biomejs/biome lint . --write",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -42,6 +42,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.13.1",
+    "pg-mem": "^3.0.4",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.20",
@@ -68,23 +69,15 @@
     "typescript": "^5.1.3"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
+    "moduleFileExtensions": ["js", "json", "ts"],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
+    "collectCoverageFrom": ["**/*.(t|j)s"],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/"
-    ],
+    "roots": ["<rootDir>/"],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/../src/$1"
     }
