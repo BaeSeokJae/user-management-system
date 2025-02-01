@@ -37,6 +37,7 @@ DELETE /users/:id   # 사용자 삭제 (본인만 가능)
 - Docker Compose로 PostgreSQL 관리
 
 ## 시스템 아키텍쳐 다이어그램
+
 ```mermaid
 graph TB
     subgraph Client
@@ -57,6 +58,54 @@ graph TB
         D -->|Auth| F[JWT Service]
         D -->|DB Access| E
     end
+```
+
+## 서비스 아키텍쳐 다이어그램
+```mermaid
+graph TD
+    subgraph Controllers
+        AC[AuthController]
+        UC[UsersController]
+    end
+
+    subgraph Services
+        AS[AuthService]
+        US[UsersService]
+    end
+
+    subgraph Repositories
+        TR[TokenRepository]
+        UR[UserRepository]
+    end
+
+    subgraph Database
+        DB[(PostgreSQL)]
+    end
+
+    subgraph Guards
+        JG[JwtAuthGuard]
+        RG[RolesGuard]
+    end
+
+    AC --> AS
+    AS --> US
+    AS --> TR
+    UC --> US
+    US --> UR
+    TR --> DB
+    UR --> DB
+
+    AC -.->|uses| JG
+    UC -.->|uses| JG
+    UC -.->|uses| RG
+
+    subgraph Entities
+        UE[User]
+        TE[Token]
+    end
+
+    TR -.->|manages| TE
+    UR -.->|manages| UE
 ```
 
 ## 설치 및 실행방법
